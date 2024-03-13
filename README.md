@@ -1,5 +1,4 @@
 # HealthConnect
-Creating a website for Dev-or-Die in Avishkar '24
 HealthConnect is a web application designed to streamline the interaction between patients and doctors, providing a secure platform for various healthcare-related tasks. Built with features such as Google OAuth for secure login and intuitive interfaces for easy navigation, HealthConnect aims to enhance the healthcare experience for both patients and doctors.
 
 Features Secure Login with Google OAuth
