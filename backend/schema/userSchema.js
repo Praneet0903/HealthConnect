@@ -31,13 +31,13 @@ module.exports = new mongoose.Schema({
     },
     workingHours: {
         type: String
-    },
-    requestAppoinments: [{
-        appoinment: mongoose.Schema.Types.ObjectId,
-        ref:'Appoinment'
-    }],
-    bookedAppoinments: [{
-        appoinment: mongoose.Schema.Types.ObjectId,
-        ref:'Appoinments'
-    }]
+    }
+    // requestAppoinments: [{
+    //     appoinment: mongoose.Schema.Types.ObjectId,
+    //     ref:'Appoinment'
+    // }],
+    // bookedAppoinments: [{
+    //     appoinment: mongoose.Schema.Types.ObjectId,
+    //     ref:'Appoinments'
+    // }]
 }); 
