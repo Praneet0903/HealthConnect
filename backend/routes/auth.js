@@ -12,7 +12,39 @@ const passportLocalMongoose = require('passport-local-mongoose')
 // const sendEmail = require("./sendEmail");
 const crypto = require("crypto");
 
+const userSchema = require('../schema/userSchema');
+
+router.use(session({
+    resave: false,
+    saveUninitialized: true,
+    secret: process.env.SECRET
+}));
+
+router.use(passport.initialize());
+router.use(passport.session());
+
+userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(findOrCreate);
+
 const User = require('../models/User');
+
+passport.serializeUser((user, cb) => {
+    cb(null, user);
+});
+passport.deserializeUser((obj, cb) => {
+    cb(null, obj);
+});
+
+passport.use(new googleOAuth({
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL: 'http://localhost:5000/auth/google/HealthConnect'
+},
+(accessToken, refreshToken, profile, cb) => {
+    User.findOrCreate({googleId: profile.id, email: profile.email}, (err, user) => {
+        return cb(err, user);
+    })
+}));
 
 //Route 1: Signup
 router.post('/signup', async(req,res)=>{
@@ -116,6 +148,42 @@ router.post('/login', async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 }
-)
+);
+
+router.get('/google', passport.authenticate('google', {scope: ['profile', 'email']}));
+
+router.get('/google/HealthConnect',
+    passport.authenticate('google', {failureRedirect: '/'}),
+    (req, res) => {
+        res.send("sucessful");
+    }
+);
+
+router.post('/getData/:email', async (req, res) => {
+    const isDoctor = req.body.isDoctor;
+    if(isDoctor) {
+        const {name, location, contact, qualificatin, workingHours, consultationFees} = req.body;
+        User.updateOne({email: req.params.email},
+        {$set: {
+            name: name,
+            location: location,
+            phoneNumber: contact,
+            qualification: qualificatin,
+            workingHours: workingHours,
+            consultationFees: consultationFees,
+            verified: true,
+            isDoctor: true
+        }}    
+        )
+    } else {
+        const {name, contact} = req.body;
+        let user = await User.create({
+            name: name,
+            phoneNumber: contact,
+            isDoctor:false,
+            verified: true
+        });
+    }
+})
 
 module.exports = router

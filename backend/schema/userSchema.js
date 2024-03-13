@@ -8,7 +8,6 @@ module.exports = new mongoose.Schema({
     }, 
     password: {
         type: String,
-        required: true,
     },
     name: {
         type: String
@@ -31,13 +30,19 @@ module.exports = new mongoose.Schema({
     },
     workingHours: {
         type: String
-    }
-    // requestAppoinments: [{
-    //     appoinment: mongoose.Schema.Types.ObjectId,
-    //     ref:'Appoinment'
-    // }],
-    // bookedAppoinments: [{
-    //     appoinment: mongoose.Schema.Types.ObjectId,
-    //     ref:'Appoinments'
-    // }]
+    },
+    phoneNumber: {
+        type: String
+    },
+    qualifications: {
+        type: String
+    },
+    requestAppoinments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Appoinment'
+    }],
+    bookedAppoinments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Appoinment'
+    }]
 }); 
