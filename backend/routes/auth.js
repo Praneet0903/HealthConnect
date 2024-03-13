@@ -8,8 +8,8 @@ const session = require('express-session');
 const googleOAuth = require('passport-google-oauth2').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 const passportLocalMongoose = require('passport-local-mongoose')
-// const Token = require("../schema/token");
-// const sendEmail = require("./sendEmail");
+const Token = require("../schema/token");
+const sendEmail = require("../middleware/sendEmail");
 const crypto = require("crypto");
 
 const userSchema = require('../schema/userSchema');
@@ -51,7 +51,7 @@ router.post('/signup', async(req,res)=>{
 
     const isDoctor = req.body.isDoctor
     const {email,password} = req.body;
-    const user = await User.findOne({email: email});
+    let user = await User.findOne({email: email});
     if(user) {
         res.status(400).send({message:"User already exists"});
         //if User already exists
@@ -59,42 +59,8 @@ router.post('/signup', async(req,res)=>{
     const salt = await bcrypt.genSalt(10);
     const secPass = await bcrypt.hash(password, salt);
 
-    // //creating a new User
-    // User = await User.create({
-    //     name: req.body.name,
-    //     email: req.body.email,
-    //     password: secPass,
-    // })
 
-    
-
-    
-    console.log(isDoctor);
-    if(isDoctor){
-        const {email, password, name, location, contact, qualificatin, workingHours, consultationFees} = req.body;
-        const user = await User.create({
-            email: email,
-            password: secPass,
-            name: name,
-            location: location,
-            phoneNumber: contact,
-            qualification: qualificatin,
-            workingHours: workingHours,
-            consultationFees: consultationFees,
-            isDoctor:true
-        });
-    }
-    else{
-        const {email, password, name, contact} = req.body;
-        let user = await User.create({
-            email: email,
-            password: secPass,
-            name: name,
-            // medicalRecords: medicalRecords,
-            phoneNumber: contact,
-            isDoctor:false
-        });
-    }
+    user = await new User({...req.body,password:secPass}).save();
 
     //data to be sent to User
     const data = {
@@ -102,6 +68,15 @@ router.post('/signup', async(req,res)=>{
             id: User.id
         }
     }
+    console.log(user)
+    const token =   await new Token({
+        userId:user._id,
+        token:crypto.randomBytes(32).toString("hex")
+    }).save();
+    const url = `http://localhost:5000/auth/${user._id}/verify/${token.token}`;
+    await sendEmail(user.email,"Verify Email",url)
+
+    // res.status(201).send({message:"Email has been sent"});
 
     //creating authToken
     const authToken = jwt.sign(data, process.env.JWT_SECRET)
@@ -136,12 +111,29 @@ router.post('/login', async (req, res) => {
                 id: user.id
             }
         }
+        
+        console.log(user);
+
+        if(!user.verified){
+            console.log("Andar gaya??")
+            let token = await Token.findOne({userId:user._id});
+            if(!token){
+                token = await new Token({
+                    userId:user._id,
+                    token:crypto.randomBytes(32).toString("hex")
+                }).save();
+            }
+            const url = `http://localhost:5000/auth/${user._id}/verify/${token.token}`;
+            await sendEmail(user.email,"Verify Email",url)
+        
+            res.status(201).send({message:"Email has been sent"});
+        }
 
         //creating authToken
         const authToken = jwt.sign(data, process.env.JWT_SECRET)
         success= true;
         let dr = user.isDoctor;
-        res.json({ success,authToken,dr});
+        // res.json({ success,authToken,dr});
 
     } catch (error) {
         console.error(error.message);
@@ -183,6 +175,26 @@ router.post('/getData/:email', async (req, res) => {
             isDoctor:false,
             verified: true
         });
+    }
+})
+
+// Route 3: Email Verification
+router.get("/:id/verify/:token",async(req,res)=>{
+    try {
+        const user = await User.findOne({_id:req.params.id})
+        if(!user) return res.status(400).send({message:"invalid link"});
+        const token = await Token.findOne({
+            userId:user._id,
+            token: req.params.token
+        })
+        if(!token) return res.status(400).send({message:"invalid link"});
+        await User.updateOne({_id:user._id},{$set:{verified:true}});
+        // await token.remove();
+        await Token.deleteOne({userId:user._id});
+        res.status(200).send({message:"Email verified"});
+    } catch (error) {
+        console.log(error);
+         return res.status(500).json(error);
     }
 })
 
