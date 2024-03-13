@@ -18,10 +18,6 @@ app.use(cookieParser());
 app.use(cors())
 
 //available routes
-
-// app.get('/', (req, res) => {
-//     res.render('index');
-// });
 // app.use('/api/auth',require('./routes/auth'));
 app.use('/auth', require('./routes/auth'));
 
