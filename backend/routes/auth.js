@@ -79,4 +79,43 @@ router.post('/signup', async(req,res)=>{
     //redirect
 })
 
+//Route 2: Login 
+router.post('/login', async (req, res) => {
+    let success=false;
+
+    const { email, password } = req.body;      //destructuring to get email and password
+    try {
+
+        //check if user's email exist in database
+        let user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ success,error: "Please enter correct credentials" });
+        }
+
+        //checking whether the password is valid
+        const passwordCompare = await bcrypt.compare(password, user.password);
+        if (!passwordCompare) {
+            return res.status(400).json({ success,error: "Please enter correct credentials" });
+        }
+
+        //data to be sent to user
+        const data = {
+            user: {
+                id: user.id
+            }
+        }
+
+        //creating authToken
+        const authToken = jwt.sign(data, process.env.JWT_SECRET)
+        success= true;
+        let dr = user.isDoctor;
+        res.json({ success,authToken,dr});
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+}
+)
+
 module.exports = router
