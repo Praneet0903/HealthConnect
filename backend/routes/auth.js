@@ -59,7 +59,6 @@ router.post('/signup', async(req,res)=>{
     const salt = await bcrypt.genSalt(10);
     const secPass = await bcrypt.hash(password, salt);
 
-
     user = await new User({...req.body,password:secPass}).save();
 
     //data to be sent to User
@@ -153,29 +152,27 @@ router.get('/google/HealthConnect',
 
 router.post('/getData/:email', async (req, res) => {
     const isDoctor = req.body.isDoctor;
-    if(isDoctor) {
-        const {name, location, contact, qualificatin, workingHours, consultationFees} = req.body;
-        User.updateOne({email: req.params.email},
-        {$set: {
-            name: name,
-            location: location,
-            phoneNumber: contact,
-            qualification: qualificatin,
-            workingHours: workingHours,
-            consultationFees: consultationFees,
-            verified: true,
-            isDoctor: true
-        }}    
-        )
-    } else {
-        const {name, contact} = req.body;
-        let user = await User.create({
-            name: name,
-            phoneNumber: contact,
-            isDoctor:false,
-            verified: true
-        });
+    const email = req.params.email;
+    
+    const newUser={};
+    if(req.body.name){newUser.name=req.body.name};
+    if(req.body.location){newUser.location=req.body.location};
+    if(req.body.phoneNumber){newUser.phoneNumber=req.body.phoneNumber};
+    if(req.body.qualification){newUser.qualification=req.body.qualification};
+    if(req.body.workingHours){newUser.workingHours=req.body.workingHours};
+    if(req.body.consultationFees){newUser.consultationFees=req.body.consultationFees};
+    if(req.body.isDoctor){newUser.isDoctor=req.body.isDoctor};
+    newUser.verified=true;
+    
+    let user = await User.findOne({email});
+    // console.log(user);
+    if(!user){
+        return res.status(400).send({message:"User doesnt exist"});
     }
+    user = await User.updateOne({email:email},{$set:newUser},{new:true});
+    
+    res.status(201).json(user);
+    console.log(user);
 })
 
 // Route 3: Email Verification
