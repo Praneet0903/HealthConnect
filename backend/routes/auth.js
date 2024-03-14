@@ -8,7 +8,7 @@ const session = require('express-session');
 const googleOAuth = require('passport-google-oauth2').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 const passportLocalMongoose = require('passport-local-mongoose')
-const Token = require("../schema/token");
+const Token = require("../models/Token");
 const sendEmail = require("../middleware/sendEmail");
 const crypto = require("crypto");
 
