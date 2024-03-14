@@ -36,13 +36,5 @@ module.exports = new mongoose.Schema({
     },
     qualifications: {
         type: String
-    },
-    requestAppoinments: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:'Appoinment'
-    }],
-    bookedAppoinments: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:'Appoinment'
-    }]
+    }
 }); 
