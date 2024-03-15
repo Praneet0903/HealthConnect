@@ -18,6 +18,10 @@ const appoinmentSchema = new mongoose.Schema({
     confirmed: {
         type: Boolean,
         default: false
+    },
+    finished: {
+        type: Boolean,
+        default: false
     }
 });
 module.exports = appoinmentSchema;

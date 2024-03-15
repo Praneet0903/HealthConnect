@@ -9,17 +9,20 @@ const User = require('../models/User');
 router.get('/:userId', async (req, res) => {
     
     const user = await User.findOne({_id: req.params.userId});
-    let appoinments, confirmedAppoinments;
+    let appoinments, confirmedAppoinments, finishedAppoinments;
     if(user.isDoctor) {
-        appoinments = await Appoinment.find({doctorId: req.params.userId, confirmed: false});
-        confirmedAppoinments = await Appoinment.find({doctorId: req.params.userId, confirmed: true});
+        appoinments = await Appoinment.find({doctorId: req.params.userId, confirmed: false, finished: false});
+        confirmedAppoinments = await Appoinment.find({doctorId: req.params.userId, confirmed: true, finished: false});
+        finishedAppoinments = await Appoinment.find({doctorId: req.params.userId, finished: true});
     } else {
-        appoinments = await Appoinment.find({patientId: req.params.userId, confirmed: false});
-        confirmedAppoinments = await Appoinment.find({patientId: req.params.userId, confirmed: true});
+        appoinments = await Appoinment.find({patientId: req.params.userId, confirmed: false, finished: false});
+        confirmedAppoinments = await Appoinment.find({patientId: req.params.userId, confirmed: true, finished: false});
+        finishedAppoinments = await Appoinment.find({patientId: req.params.userId, finished: true});
     }
     res.status(200).json({
         pendingAppointments: appoinments,
-        confirmedOnes: confirmedAppoinments
+        confirmedOnes: confirmedAppoinments,
+        finishedOne: finishedAppoinments
     });
 
 })
@@ -55,5 +58,13 @@ router.put('/confirmAppoinments/:appoinmentId', async (req, res) => {
     appoinment = await Appoinment.findByIdAndUpdate(req.params.appoinmentId, {$set:newApp},{new:true})
     res.json(appoinment);
 });
+
+router.delete('/close/:appoinmentId', async (req, res) => {
+    const newApp = {};
+    newApp.finished = true;
+    let appoinment = await Appoinment.findById(req.params.appoinmentId);
+    appoinment = await Appoinment.findByIdAndUpdate(req.params.appoinmentId, {$set:newApp},{new:true})
+    res.status(200).json({message: "doctorId"});
+})
 
 module.exports = router;
