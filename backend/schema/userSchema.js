@@ -36,5 +36,9 @@ module.exports = new mongoose.Schema({
     },
     qualifications: {
         type: String
-    }
+    },
+    username:{
+        type: Date,
+        default: Date.now
+    },
 }); 
