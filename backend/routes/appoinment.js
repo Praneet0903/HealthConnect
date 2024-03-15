@@ -4,8 +4,29 @@ const express = require('express');
 const router = express.Router();
 
 const Appoinment = require('../models/Appoinment');
+const User = require('../models/User');
+
+router.get('/:userId', async (req, res) => {
+    
+    const user = await User.findOne({_id: req.params.userId});
+    let appoinments, confirmedAppoinments;
+    if(user.isDoctor) {
+        appoinments = await Appoinment.find({doctorId: req.params.userId, confirmed: false});
+        confirmedAppoinments = await Appoinment.find({doctorId: req.params.userId, confirmed: true});
+    } else {
+        appoinments = await Appoinment.find({patientId: req.params.userId, confirmed: false});
+        confirmedAppoinments = await Appoinment.find({patientId: req.params.userId, confirmed: true});
+    }
+    res.status(200).json({
+        pendingAppointments: appoinments,
+        confirmedOnes: confirmedAppoinments
+    });
+
+})
 
 router.post('/:userId/:doctorId', async (req, res) => {
+    const user = await User.findOne({_id: req.params.doctorId});
+    if(!user.isDoctor) res.status(501).send({message: "Please choose a valid doctor"});
     const userId = req.params.userId;
     const doctorId = req.params.doctorId;
     const date = moment().format('DD-MM-YYYY');

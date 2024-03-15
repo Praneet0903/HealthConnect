@@ -16,7 +16,8 @@ module.exports = new mongoose.Schema({
         tpye: String
     },
     isDoctor: {
-        type: Boolean
+        type: Boolean,
+        required: true
     },
     location: {
         type: String

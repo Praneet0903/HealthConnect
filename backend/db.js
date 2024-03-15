@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const mongoURI = "mongodb://127.0.0.1:27017/web99";
-const mongoURI2 = "mongodb+srv://' + process.env.MONGODB_USERNAME + ':' + process.env.MONGODB_PASSWORD + '@devordie.bluopjz.mongodb.net/?retryWrites=true&w=majority&appName=DevOrDie";
+const mongoURI2 = 'mongodb+srv://' + process.env.MONGODB_USERNAME + ':' + process.env.MONGODB_PASSWORD + '@devordie.bluopjz.mongodb.net/?retryWrites=true&w=majority&appName=DevOrDie'
 
 
 const connectToMongo = ()=>{
-    mongoose.connect(mongoURI)
+    mongoose.connect(mongoURI2)
     .then(() => {
         console.log('mongoDB connected');
     })
