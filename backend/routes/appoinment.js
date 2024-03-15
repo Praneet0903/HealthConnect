@@ -5,7 +5,7 @@ const router = express.Router();
 
 const Appoinment = require('../models/Appoinment');
 
-router.post('/appoinment/:userId/:doctorId', async (req, res) => {
+router.post('/:userId/:doctorId', async (req, res) => {
     const userId = req.params.userId;
     const doctorId = req.params.doctorId;
     const date = moment().format('DD-MM-YYYY');
@@ -23,12 +23,16 @@ router.post('/appoinment/:userId/:doctorId', async (req, res) => {
     });
 });
 
-router.post('/confirmAppoinments/:appoinmentId', (req, res) => {
-    Appoinment.updateOne({_id: req.params.appoinmentId}, {
-        $set: {
-            confirmed: true
-        }
-    });
+router.put('/confirmAppoinments/:appoinmentId', async (req, res) => {
+    const newApp = {};
+    newApp.confirmed = true;
+    let appoinment = await Appoinment.findById(req.params.appoinmentId);
+    
+    if(!appoinment){
+        return res.status(400).send({message:"No such appointment"});
+    }
+    appoinment = await Appoinment.findByIdAndUpdate(req.params.appoinmentId, {$set:newApp},{new:true})
+    res.json(appoinment);
 });
 
 module.exports = router;

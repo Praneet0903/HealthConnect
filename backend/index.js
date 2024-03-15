@@ -22,6 +22,7 @@ app.use(cors())
 //available routes
 // app.use('/api/auth',require('./routes/auth'));
 app.use('/auth', require('./routes/auth'));
+app.use('/appointment', require('./routes/appoinment'));
 app.get("/",(req,res)=>{
     return res.render("index");
 })
