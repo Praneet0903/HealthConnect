@@ -23,6 +23,7 @@ app.use(cors())
 // app.use('/api/auth',require('./routes/auth'));
 app.use('/auth', require('./routes/auth'));
 app.use('/appointment', require('./routes/appoinment'));
+app.use('/rating', require('./routes/rating'));
 app.get("/",(req,res)=>{
     return res.render("index");
 })
