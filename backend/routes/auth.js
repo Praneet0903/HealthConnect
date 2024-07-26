@@ -114,7 +114,6 @@ router.post('/login', async (req, res) => {
         console.log(user);
 
         if(!user.verified){
-            console.log("Andar gaya??")
             let token = await Token.findOne({userId:user._id});
             if(!token){
                 token = await new Token({
@@ -132,7 +131,7 @@ router.post('/login', async (req, res) => {
         const authToken = jwt.sign(data, process.env.JWT_SECRET)
         success= true;
         let dr = user.isDoctor;
-        // res.json({ success,authToken,dr});
+        res.json({ success,authToken,dr});
 
     } catch (error) {
         console.error(error.message);
