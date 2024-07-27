@@ -5,8 +5,9 @@ const router = express.Router();
 
 const Appointment = require('../models/Appointment');
 const User = require('../models/User');
+const fetchuser = require("../middleware/fetchuser");
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId',fetchuser, async (req, res) => {
     
     const user = await User.findOne({_id: req.params.userId});
     let appointments, confirmedAppointments, finishedAppointments;
@@ -27,7 +28,7 @@ router.get('/:userId', async (req, res) => {
 
 })
 
-router.post('/:userId/:doctorId', async (req, res) => {
+router.post('/:userId/:doctorId',fetchuser, async (req, res) => {
     const user = await User.findOne({_id: req.params.doctorId});
     if(!user.isDoctor) res.status(501).send({message: "Please choose a valid doctor"});
     const userId = req.params.userId;
@@ -47,24 +48,20 @@ router.post('/:userId/:doctorId', async (req, res) => {
     });
 });
 
-router.put('/confirmAppointments/:appointmentId', async (req, res) => {
-    const newApp = {};
-    newApp.confirmed = true;
+router.put('/confirmAppointments/:appointmentId',fetchuser, async (req, res) => {
     let appointment = await Appointment.findById(req.params.appointmentId);
     
     if(!appointment){
-        return res.status(400).send({message:"No such appointtment"});
+        return res.status(400).send({message:"No such appointment"});
     }
-    appointment = await Appointment.findByIdAndUpdate(req.params.appointmentId, {$set:newApp},{new:true})
+    appointment = await Appointment.findByIdAndUpdate(req.params.appointmentId, { $set: { confirmed: true } },{new:true})
     res.json(appointment);
 });
 
-router.delete('/close/:appointmentId', async (req, res) => {
-    const newApp = {};
-    newApp.finished = true;
+router.put('/close/:appointmentId',fetchuser, async (req, res) => {
     let appointment = await Appointment.findById(req.params.appointmentId);
-    appointment = await Appointment.findByIdAndUpdate(req.params.appointmentId, {$set:newApp},{new:true})
-    res.status(200).json({message: "doctorId"});
+    appointment = await Appointment.findByIdAndUpdate(req.params.appointmentId, { $set: { finished: true } },{new:true})
+    res.status(200).json({message: "Appointment closed"});
 })
 
 module.exports = router;
