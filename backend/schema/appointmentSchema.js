@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const appoinmentSchema = new mongoose.Schema({
+const appointmentSchema = new mongoose.Schema({
     doctorId: {
         type: String,
         required: true
