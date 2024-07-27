@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const fetchuser = require("../middleware/fetchuser");
 
 const Ratings = require('../models/Rating');
 
-router.get('/showRating/:doctorId', async(req, res) => {
+router.get('/showRating/:doctorId', fetchuser, async(req, res) => {
     const doctorRating = await Ratings.findOne({doctorId: req.params.doctorId});
     if(!doctorRating) res.status(400).json({message: "Cannot find the ratings for the given doctor, make sure the doctor is valid"});
     res.status(200).send(doctorRating);
 })
 
-router.post('/:userId/:doctorId', async (req, res) => {
+router.post('/:userId/:doctorId',fetchuser, async (req, res) => {
 
     const patientId = req.params.userId;
     const userRating = req.body.userRating;
