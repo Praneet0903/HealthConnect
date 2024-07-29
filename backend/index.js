@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const cors = require("cors");
 const connectToMongo = require('./db');
+const pdfsRouter = require('./routes/pdfs');
 
 connectToMongo();
 
@@ -17,10 +18,13 @@ app.set("view engine","ejs")
 app.set("views",path.resolve("./views"))
 // app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-app.use(cors())
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 //available routes
 // app.use('/api/auth',require('./routes/auth'));
+app.use('/pdfs', pdfsRouter);
 app.use('/auth', require('./routes/auth'));
 app.use('/appointment', require('./routes/appoinment'));
 app.use('/rating', require('./routes/rating'));
